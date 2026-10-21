@@ -23,13 +23,51 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Download the latest lerd
+      # Plugins are installed with the newest lerd release, betas included, once
+      # one has plugins; until then, or when the repository variable LERD_REF
+      # names a branch, with lerd built from it, so approval can run ahead.
+      - name: Pick the lerd to check with
+        id: lerd
         env:
           GH_TOKEN: ${{ github.token }}
+          LERD_REF: ${{ vars.LERD_REF }}
         run: |
           mkdir -p "$RUNNER_TEMP/lerd"
-          gh release download --repo lerd-env/lerd --pattern 'lerd_*_linux_amd64.tar.gz' --dir "$RUNNER_TEMP/lerd"
-          tar -xzf "$RUNNER_TEMP"/lerd/lerd_*_linux_amd64.tar.gz -C "$RUNNER_TEMP/lerd"
+          if [ -z "$LERD_REF" ]; then
+            tag=$(gh release list --repo lerd-env/lerd --limit 1 --json tagName --jq '.[0].tagName')
+            gh release download "$tag" --repo lerd-env/lerd --pattern 'lerd_*_linux_amd64.tar.gz' --dir "$RUNNER_TEMP/lerd"
+            tar -xzf "$RUNNER_TEMP"/lerd/lerd_*_linux_amd64.tar.gz -C "$RUNNER_TEMP/lerd"
+            if "$RUNNER_TEMP/lerd/lerd" plugin --help >/dev/null 2>&1; then
+              "$RUNNER_TEMP/lerd/lerd" --version
+              exit 0
+            fi
+            echo "lerd $tag has no plugins; building main."
+          fi
+          echo "ref=${LERD_REF:-main}" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch lerd's source
+        if: steps.lerd.outputs.ref
+        uses: actions/checkout@v4
+        with:
+          repository: lerd-env/lerd
+          ref: ${{ steps.lerd.outputs.ref }}
+          path: lerd-src
+
+      - if: steps.lerd.outputs.ref
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build lerd
+        if: steps.lerd.outputs.ref
+        working-directory: lerd-src
+        run: |
+          go_version=$(sed -n 's/^toolchain go//p' go.mod)
+          make build-ui
+          # Stamped dev, an untagged build, so the lerd bound of a plugin aimed at
+          # the coming release does not refuse it.
+          GOTOOLCHAIN="go${go_version:-$(go env GOVERSION | sed 's/^go//')}" CGO_ENABLED=0 \
+            go build -tags nogui -ldflags "-X github.com/geodro/lerd/internal/version.Version=dev" -o "$RUNNER_TEMP/lerd/lerd" ./cmd/lerd
           "$RUNNER_TEMP/lerd/lerd" --version
 
       - name: Check the changed entries

@@ -12,12 +12,13 @@ import (
 
 // manifest is the part of plugin.yaml the catalog shows before an install.
 type manifest struct {
-	Lerd     string                 `yaml:"lerd"`
-	Requires []string               `yaml:"requires"`
-	Commands []struct{ Run string } `yaml:"commands"`
-	SiteCmds []struct{ Run string } `yaml:"site_commands"`
-	Hooks    map[string]string      `yaml:"hooks"`
-	MCP      struct {
+	Lerd      string                 `yaml:"lerd"`
+	Requires  []string               `yaml:"requires"`
+	Platforms []string               `yaml:"platforms"`
+	Commands  []struct{ Run string } `yaml:"commands"`
+	SiteCmds  []struct{ Run string } `yaml:"site_commands"`
+	Hooks     map[string]string      `yaml:"hooks"`
+	MCP       struct {
 		Tools []struct{ Run string } `yaml:"tools"`
 	} `yaml:"mcp"`
 	API      []struct{ Run string } `yaml:"api"`

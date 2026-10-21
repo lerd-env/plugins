@@ -49,7 +49,7 @@ lerd plugin remove <name>      # remove it, keeping its data folder
 lerd plugin new <name>         # scaffold your own from a working boilerplate
 ```
 
-Lerd reads this registry at most once a day and keeps the last copy, so browsing and installed plugins work offline. A plugin states the oldest Lerd it runs on, and Browse shows what it requires on your machine before you install it.
+Lerd reads this registry at most once a day and keeps the last copy, so browsing and installed plugins work offline. A plugin states the oldest Lerd it runs on and, when it matters, whether it runs on Linux or macOS (Windows runs Lerd in WSL, so Linux covers it). Browse shows that, and what it requires on your machine, before you install it.
 
 ## Contributing
 
@@ -72,7 +72,7 @@ tags: [queues, dashboard]
 images: [docs/board.png]   # paths in your repository at that commit, the first one is the preview
 ```
 
-A check runs on every pull request. It fetches your commit, installs it with the latest Lerd beside every plugin already listed, and blocks on what it can verify: a public repository, a license, a README, the `lerd` bound, no compiled binaries, pinned images your README names, a screenshot when the plugin adds a page, site tab or page script, and names nobody else has. It points the reviewer at anything else worth reading, then a maintainer reads the code. An update is a new pull request with the new commit.
+A check runs on every pull request. It fetches your commit, installs it with the newest Lerd that has plugins, a beta or a build of the coming release when that is newer than the last stable one, beside every plugin already listed, and blocks on what it can verify: a public repository, a license, a README, the `lerd` bound, known `platforms`, no compiled binaries, pinned images your README names, a screenshot when the plugin adds a page, site tab or page script, images within their limits, and names nobody else has. It points the reviewer at anything else worth reading, then a maintainer reads the code. An update is a new pull request with the new commit.
 
 If your plugin needs something Lerd does not offer yet, add it to Lerd rather than working around it: see [Extending the Plugin System](https://lerd.sh/contributing/plugins).
 

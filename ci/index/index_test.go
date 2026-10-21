@@ -52,7 +52,7 @@ func fixture(t *testing.T) (registryDir string, commit string) {
 	plugin := t.TempDir()
 	git(t, plugin, "init", "-q")
 	write(t, plugin, map[string]string{
-		"plugin.yaml":   "api_version: 1\nname: qb\nlerd: \">=1.37\"\nrequires: [jq]\ncommands:\n  - {name: a, run: bin/a}\nhooks:\n  site.linked: bin/b\n",
+		"plugin.yaml":   "api_version: 1\nname: qb\nlerd: \">=1.37\"\nrequires: [jq]\nplatforms: [linux]\ncommands:\n  - {name: a, run: bin/a}\nhooks:\n  site.linked: bin/b\n",
 		"bin/a":         "#!/usr/bin/env python3\n",
 		"bin/b":         "#!/bin/sh\n",
 		"docs/shot.png": "\x89PNG",
@@ -90,6 +90,9 @@ func TestBuild(t *testing.T) {
 	today := time.Now().Format("2006-01-02")
 	if l.Name != "qb" || l.Commit != commit || l.Author != "acme" || l.Category != "Debugging" || l.Stars != 7 || l.Lerd != ">=1.37" {
 		t.Errorf("listing %+v", l)
+	}
+	if strings.Join(l.Platforms, ",") != "linux" {
+		t.Errorf("platforms %v", l.Platforms)
 	}
 	if strings.Join(l.Requires, ",") != "/bin/sh,jq,python3" {
 		t.Errorf("requires %v", l.Requires)

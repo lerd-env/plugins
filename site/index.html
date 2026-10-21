@@ -4,52 +4,82 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lerd Plugins</title>
-  <meta name="description" content="Approved plugins for Lerd, the local PHP development environment.">
+  <meta name="description" content="Plugins for Lerd, the local PHP development environment, each reviewed at the commit Lerd installs.">
+  <link rel="icon" href="logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="top">
-    <div class="wrap top-row">
-      <a class="brand" href="./"><span class="mark">L</span> Lerd <span class="muted">Plugins</span></a>
-      <nav>
-        <a href="https://lerd.sh/features/plugins/">Write a plugin</a>
-        <a href="https://github.com/lerd-env/plugins/blob/main/SUBMITTING.md">Submit one</a>
-      </nav>
+  <header class="hdr"><div class="wrap">
+    <a class="brand" href="./"><img src="logo.svg" alt="" width="26" height="26">Lerd <span>Plugins</span></a>
+    <nav>
+      <a href="https://lerd.sh/features/plugins/">Write a plugin</a>
+      <a href="https://github.com/lerd-env/plugins/blob/main/SUBMITTING.md">Submit one</a>
+      <a href="https://lerd.sh/">lerd.sh</a>
+    </nav>
+    <div class="hdr-right">
+      <a href="https://github.com/lerd-env/plugins">GitHub</a>
+      <a class="btn ink" href="https://lerd.sh/getting-started/installation">Install Lerd</a>
     </div>
-  </header>
+  </div></header>
 
-  <main class="wrap">
-    <section class="hero">
-      <h1>Plugins for Lerd</h1>
-      <p>Every plugin here was reviewed at one exact commit, and that commit is the only one Lerd installs. Plugins run as you, with your permissions, so read what you install.</p>
+  <main>
+    <section class="hero"><div class="wrap">
+      <p class="label"><b>00</b> / Reviewed plugins</p>
+      <h1>Plugins<span>for Lerd</span></h1>
+      <p class="lead">Commands, dashboard pages, AI tools and services that extend Lerd. A maintainer reads each plugin at one exact commit, and that commit is the one Lerd installs. Plugins run as you, so read what you install.</p>
+      <div class="meta">
+        <div><strong id="n-plugins">0</strong>plugins</div>
+        <div><strong id="n-authors">0</strong>authors</div>
+        <div><strong>1</strong>reviewed commit each</div>
+      </div>
+    </div></section>
+
+    <section class="list"><div class="wrap">
       <div class="filters">
         <input id="q" type="search" placeholder="Search plugins, tags, authors" aria-label="Search plugins">
-        <div id="categories" class="chips" role="group" aria-label="Category"></div>
+        <label class="sort">Sort
+          <select id="sort">
+            <option value="updated">Recently updated</option>
+            <option value="stars">Most starred</option>
+            <option value="added">Newest</option>
+            <option value="name">Name</option>
+          </select>
+        </label>
       </div>
-    </section>
-
-    <div class="bar">
-      <p id="count" class="muted"></p>
-      <label class="sort muted">Sort
-        <select id="sort">
-          <option value="updated">Recently updated</option>
-          <option value="stars">Most starred</option>
-          <option value="added">Newest</option>
-          <option value="name">Name</option>
-        </select>
-      </label>
-    </div>
-    <section id="grid" class="grid" aria-live="polite"></section>
+      <div id="categories" class="chips" role="group" aria-label="Category"></div>
+      <p id="count" class="label count"></p>
+      <div id="grid" class="grid" aria-live="polite"></div>
+    </div></section>
   </main>
 
-  <dialog id="detail" aria-labelledby="d-name">
+  <dialog id="detail" aria-labelledby="d-name" tabindex="-1">
     <form method="dialog"><button class="close" aria-label="Close">&times;</button></form>
     <div id="d-body"></div>
   </dialog>
 
-  <footer class="wrap muted">
-    Listings come from <a href="https://github.com/lerd-env/plugins">lerd-env/plugins</a>. Approval is not a security audit.
-  </footer>
+  <footer><div class="wrap foot">
+    <div>
+      <a class="brand" href="./"><img src="logo.svg" alt="" width="26" height="26">Lerd <span>Plugins</span></a>
+      <p class="small">Listings come from <a href="https://github.com/lerd-env/plugins">lerd-env/plugins</a>. A review reads the code, it is not a security audit.</p>
+    </div>
+    <div><h5>Plugins</h5><ul>
+      <li><a href="https://lerd.sh/features/plugins/">Write a plugin</a></li>
+      <li><a href="https://github.com/lerd-env/plugins/blob/main/SUBMITTING.md">Approval terms</a></li>
+      <li><a href="https://github.com/lerd-env/plugins/pull/1">Example submission</a></li>
+    </ul></div>
+    <div><h5>Lerd</h5><ul>
+      <li><a href="https://lerd.sh/">lerd.sh</a></li>
+      <li><a href="https://lerd.sh/getting-started/installation">Installation</a></li>
+      <li><a href="https://github.com/lerd-env/lerd">GitHub</a></li>
+    </ul></div>
+    <div><h5>Community</h5><ul>
+      <li><a href="https://discord.gg/5JK54s7xCC">Discord</a></li>
+      <li><a href="https://github.com/lerd-env/plugins/security/advisories/new">Report a vulnerability</a></li>
+    </ul></div>
+  </div></footer>
 
   <script src="app.js"></script>
 </body>

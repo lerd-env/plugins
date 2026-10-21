@@ -35,6 +35,7 @@ type listing struct {
 	Stars       int      `json:"stars,omitempty"`
 	Lerd        string   `json:"lerd,omitempty"`
 	Requires    []string `json:"requires,omitempty"`
+	Platforms   []string `json:"platforms,omitempty"`
 }
 
 type catalog struct {
@@ -102,7 +103,7 @@ func buildListing(path, repoDir, out string) (listing, error) {
 	l := listing{
 		Name: name, Description: e.Description, Repo: e.Repo, Commit: e.Commit,
 		Author: e.Author, Category: e.Category, Tags: e.Tags, Images: images,
-		Lerd: m.Lerd, Requires: m.requirements(dir),
+		Lerd: m.Lerd, Requires: m.requirements(dir), Platforms: m.Platforms,
 	}
 	rel, _ := filepath.Rel(repoDir, path)
 	l.AddedAt = gitDate(repoDir, rel, true)

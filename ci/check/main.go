@@ -141,14 +141,36 @@ func installAlongside(r *report, lerd, plugins, name, dir string) {
 			r.flag("could not fetch listed plugin %s to check for clashes: %v", other, err)
 			continue
 		}
-		if out, err := lerdInstall(lerd, env, odir); err != nil {
+		if out, err := installHere(lerd, env, odir); err != nil {
 			r.flag("listed plugin %s no longer installs on this lerd: %s", other, out)
 		}
 		os.RemoveAll(odir)
 	}
-	if out, err := lerdInstall(lerd, env, dir); err != nil {
+	idir, aside, err := installableHere(dir)
+	if err != nil {
+		r.fail("%v", err)
+		return
+	}
+	if aside {
+		defer os.RemoveAll(idir)
+		r.flag("it lists only macos, so it was installed on Linux with platforms set aside; run it on a Mac before approving")
+	}
+	if out, err := lerdInstall(lerd, env, idir); err != nil {
 		r.fail("lerd refused to install it: %s", out)
 	}
+}
+
+// installHere installs a listed plugin the way installAlongside installs the
+// submission, platforms set aside when it runs only on macOS.
+func installHere(lerd string, env []string, dir string) (string, error) {
+	idir, aside, err := installableHere(dir)
+	if err != nil {
+		return err.Error(), err
+	}
+	if aside {
+		defer os.RemoveAll(idir)
+	}
+	return lerdInstall(lerd, env, idir)
 }
 
 func lerdInstall(lerd string, env []string, dir string) (string, error) {

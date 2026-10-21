@@ -2,12 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/lerd-env/plugins/ci/registry"
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 
+	"github.com/lerd-env/plugins/ci/registry"
+	_ "golang.org/x/image/webp"
 	"gopkg.in/yaml.v3"
 )
 
@@ -47,9 +51,10 @@ func checkManifest(r *report, dir, name string, hasImages bool) {
 		return
 	}
 	var m struct {
-		Name string         `yaml:"name"`
-		Lerd string         `yaml:"lerd"`
-		UI   map[string]any `yaml:"ui"`
+		Name      string         `yaml:"name"`
+		Lerd      string         `yaml:"lerd"`
+		UI        map[string]any `yaml:"ui"`
+		Platforms []string       `yaml:"platforms"`
 	}
 	if err := yaml.Unmarshal(data, &m); err != nil {
 		r.fail("plugin.yaml: %v", err)
@@ -63,6 +68,11 @@ func checkManifest(r *report, dir, name string, hasImages bool) {
 		r.fail("plugin.yaml must declare lerd, the oldest release it runs on (rule 4)")
 	case !lowerBoundRe.MatchString(strings.TrimSpace(m.Lerd)):
 		r.fail("plugin.yaml lerd %q must be a lower bound only, like \">=1.37\" (rule 4)", m.Lerd)
+	}
+	for _, p := range m.Platforms {
+		if !knownPlatforms[p] {
+			r.fail("plugin.yaml platforms %q is not one Lerd knows, use linux or macos (Windows runs Lerd in WSL, so linux covers it)", p)
+		}
 	}
 	// A plugin with something to see is listed with a picture of it; one that
 	// only adds commands or hooks has nothing to capture and shows its icon.
@@ -138,7 +148,19 @@ func splitImage(image string) (repo, tag string) {
 
 var imageExts = map[string]bool{".png": true, ".jpg": true, ".jpeg": true, ".webp": true}
 
+// Every Browse card in Lerd loads its plugin's first image, and GitHub Pages
+// caps the catalog site at 1 GB, so images are kept to what a page of cards
+// can carry: a full dashboard screenshot fits well inside these.
+const (
+	maxImages     = 6
+	maxImageBytes = 1 << 20
+	maxImageWidth = 2560
+)
+
 func checkImages(r *report, dir string, images []string) {
+	if len(images) > maxImages {
+		r.fail("the entry lists %d images, at most %d (rule 20)", len(images), maxImages)
+	}
 	for _, img := range images {
 		if !imageExts[strings.ToLower(filepath.Ext(img))] {
 			r.fail("image %s must be a png, jpg or webp", img)
@@ -146,7 +168,34 @@ func checkImages(r *report, dir string, images []string) {
 		}
 		if !insideFile(dir, img) {
 			r.fail("image %s is not in the repository at this commit", img)
+			continue
 		}
+		checkImageFile(r, filepath.Join(dir, img), img)
+	}
+}
+
+func checkImageFile(r *report, path, rel string) {
+	info, err := os.Stat(path)
+	if err != nil {
+		r.fail("image %s: %v", rel, err)
+		return
+	}
+	if info.Size() > maxImageBytes {
+		r.fail("image %s is %.1f MB, keep each image under 1 MB (rule 20)", rel, float64(info.Size())/(1<<20))
+	}
+	f, err := os.Open(path)
+	if err != nil {
+		r.fail("image %s: %v", rel, err)
+		return
+	}
+	defer f.Close()
+	cfg, _, err := image.DecodeConfig(f)
+	if err != nil {
+		r.fail("image %s is not a readable png, jpg or webp: %v", rel, err)
+		return
+	}
+	if cfg.Width > maxImageWidth {
+		r.fail("image %s is %d px wide, at most %d (rule 20)", rel, cfg.Width, maxImageWidth)
 	}
 }
 
