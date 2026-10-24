@@ -1,0 +1,6 @@
+repo: https://github.com/ExeQue/lerd-plugin-wsl-hosts
+commit: 138139f6ebc897fedf4706b4cf225381753cdf06
+author: ExeQue
+description: Keep the Windows hosts file and /etc/hosts in sync with lerd's domains under WSL
+category: Networking
+tags: [wsl, windows, hosts, dns, mcp]
