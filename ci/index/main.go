@@ -42,6 +42,9 @@ type listing struct {
 
 type catalog struct {
 	Plugins []listing `json:"plugins"`
+	// Revoked are plugins pulled for a security problem. Lerd stops an install
+	// whose commit a revocation covers and shows the user its reason.
+	Revoked []revoked `json:"revoked,omitempty"`
 	// LerdStars is Lerd's own star count, for the page header's GitHub link;
 	// lerd itself reads only plugins and ignores it.
 	LerdStars int `json:"lerd_stars,omitempty"`
@@ -85,6 +88,11 @@ func pagesFromIndex(site, out string) error {
 
 // build writes the catalog for every entry in plugins, reading their dates
 // from the registry's history in repoDir.
+type revoked struct {
+	Name string `json:"name"`
+	registry.Revocation
+}
+
 func build(plugins, repoDir, out string) error {
 	paths, err := filepath.Glob(filepath.Join(plugins, "*.yaml"))
 	if err != nil {
@@ -93,6 +101,16 @@ func build(plugins, repoDir, out string) error {
 	sort.Strings(paths)
 	c := catalog{Plugins: []listing{}}
 	for _, path := range paths {
+		name, e, err := registry.ReadEntry(path)
+		if err != nil {
+			return err
+		}
+		if e.Revoked != nil {
+			c.Revoked = append(c.Revoked, revoked{Name: name, Revocation: *e.Revoked})
+		}
+		if !e.Listed() {
+			continue
+		}
 		l, err := buildListing(path, repoDir, out)
 		if err != nil {
 			return fmt.Errorf("%s: %w", filepath.Base(path), err)

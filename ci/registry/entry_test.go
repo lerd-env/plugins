@@ -67,3 +67,47 @@ func TestEntryProblems(t *testing.T) {
 		}
 	}
 }
+
+// A revocation without its reason or a dated record would reach users as an
+// unexplained stop, so the entry refuses it.
+func TestEntryProblems_Revocation(t *testing.T) {
+	base := Entry{Repo: "https://github.com/acme/qb", Commit: goodCommit, Author: "a", Description: "d"}
+	ok := base
+	ok.Revoked = &Revocation{Reason: "sends .env away", At: "2026-10-24"}
+	if p := ok.Problems("qb"); len(p) != 0 {
+		t.Fatalf("a full revocation: %v", p)
+	}
+	for want, r := range map[string]Revocation{
+		"reason": {At: "2026-10-24"},
+		"YYYY":   {Reason: "x", At: "yesterday"},
+		"hash":   {Reason: "x", At: "2026-10-24", Commits: []string{"abc"}},
+	} {
+		e := base
+		e.Revoked = &r
+		if p := e.Problems("qb"); !has(p, want) {
+			t.Errorf("%+v: problems %v, want one naming %q", r, p, want)
+		}
+	}
+}
+
+// Covering no commits pulls every install; covering some lets a fixed commit be
+// listed again while the ones named stay pulled.
+func TestEntryListed(t *testing.T) {
+	fixed := "1111111111111111111111111111111111111111"
+	e := Entry{Commit: goodCommit}
+	if !e.Listed() {
+		t.Error("an entry with no revocation is listed")
+	}
+	e.Revoked = &Revocation{Reason: "x", At: "2026-10-24"}
+	if e.Listed() {
+		t.Error("a revocation covering every commit unlists it")
+	}
+	e.Revoked.Commits = []string{goodCommit}
+	if e.Listed() {
+		t.Error("the entry's own commit is covered, so it is not listed")
+	}
+	e.Commit = fixed
+	if !e.Listed() {
+		t.Error("a fixed commit outside the revocation is listed again")
+	}
+}

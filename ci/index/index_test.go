@@ -131,3 +131,29 @@ func TestBuild_RefusesAnEntryItCannotFetch(t *testing.T) {
 		t.Fatalf("err = %v", err)
 	}
 }
+
+// A revoked entry leaves the listings and goes into the revoked list with its
+// reason, without its commit ever being fetched again.
+func TestBuild_PublishesARevocation(t *testing.T) {
+	orig := registry.RepoPattern
+	registry.RepoPattern = regexp.MustCompile(`.`)
+	t.Cleanup(func() { registry.RepoPattern = orig })
+	origStars := starsOf
+	starsOf = func(string) (int, error) { return 0, nil }
+	t.Cleanup(func() { starsOf = origStars })
+
+	reg := t.TempDir()
+	write(t, reg, map[string]string{"plugins/bad.yaml": "repo: https://example.test/gone\ncommit: 0123456789abcdef0123456789abcdef01234567\nauthor: a\ndescription: d\nrevoked:\n  reason: sends .env away\n  at: \"2026-10-24\"\n"})
+	out := t.TempDir()
+	if err := build(filepath.Join(reg, "plugins"), reg, out); err != nil {
+		t.Fatal(err)
+	}
+	var c catalog
+	data, _ := os.ReadFile(filepath.Join(out, "index.json"))
+	if err := json.Unmarshal(data, &c); err != nil {
+		t.Fatal(err)
+	}
+	if len(c.Plugins) != 0 || len(c.Revoked) != 1 || c.Revoked[0].Name != "bad" || c.Revoked[0].Reason != "sends .env away" {
+		t.Fatalf("index %s", data)
+	}
+}
