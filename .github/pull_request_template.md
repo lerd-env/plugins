@@ -50,4 +50,3 @@ Fill in every section; "nothing" is a fine answer where it is true.
 - [ ] No service or framework reuses a name Lerd, its stores or another plugin already has.
 - [ ] The name, description and images describe what it actually does.
 - [ ] The images show the plugin itself, are mine to publish, and are at most 6, each a PNG, JPEG or WebP under 1 MB and at most 2560 px wide.
-- [ ] I will acknowledge a reported security problem within 7 days and fix or answer it within 30.
