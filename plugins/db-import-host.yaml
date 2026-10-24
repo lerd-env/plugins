@@ -1,5 +1,5 @@
 repo: https://github.com/lerd-env/plugin-db-import-host
-commit: cd73bcd77cb55d18417dbe25feb4df9cfdc40cf0
+commit: 7836bd44d5678074c233b6d8429cc7d407256932
 author: lerd-env
 description: Bring your databases over from a MySQL, MariaDB or PostgreSQL server installed on this machine
 category: Migration
