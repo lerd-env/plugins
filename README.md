@@ -72,11 +72,24 @@ tags: [queues, dashboard]
 images: [docs/board.png]   # paths in your repository at that commit, the first one is the preview
 ```
 
+A plugin pulled for a security problem keeps its entry, marked revoked, so Lerd can tell everyone who has it:
+
+```yaml
+revoked:
+  reason: Sends the site's .env to a third party   # shown to every user who has it
+  at: "2026-10-24"
+  commits: [0123456789abcdef0123456789abcdef01234567]   # the commits it covers; all of them when left out
+```
+
+With `commits` listed, a fixed commit can be approved again in the same entry while the ones named stay revoked. A plugin that is only delisted has its entry deleted, and Lerd leaves what is installed alone.
+
 A check runs on every pull request. It fetches your commit, installs it with the newest Lerd that has plugins, a beta or a build of the coming release when that is newer than the last stable one, beside every plugin already listed, and blocks on what it can verify: a public repository, a license, a README, the `lerd` bound, known `platforms`, no compiled binaries, pinned images your README names, a screenshot when the plugin adds a page, site tab, Overview card or page script, images within their limits, and names nobody else has. It points the reviewer at anything else worth reading, then a maintainer reads the code. An update is a new pull request with the new commit.
 
 If your plugin needs something Lerd does not offer yet, add it to Lerd rather than working around it: see [Extending the Plugin System](https://lerd.sh/contributing/plugins).
 
 ## Reporting a problem
+
+Plugins are written by their authors, not by Lerd. A listing means a maintainer read the code at one commit; it is not a warranty or a security audit, and Lerd and its maintainers are not responsible for what an installed plugin does. Install only plugins you trust.
 
 A bug in a plugin belongs on that plugin's repository, and Lerd's dashboard links straight to a filled-in issue there when a plugin fails. A security problem in a listed plugin goes privately through **Report a vulnerability** on this repository's Security tab.
 

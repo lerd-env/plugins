@@ -87,3 +87,18 @@ func TestAnnotate_PutsEveryFindingInTheLog(t *testing.T) {
 		t.Errorf("annotate wrote\n%q\nwant\n%q", b.String(), want)
 	}
 }
+
+// The pull request that revokes a plugin edits its entry, which runs the check;
+// it must not fetch or install the plugin being pulled.
+func TestCheckEntry_SkipsARevokedEntry(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "bad.yaml")
+	write(t, dir, map[string]string{"bad.yaml": "repo: https://github.com/acme/bad\ncommit: 0123456789abcdef0123456789abcdef01234567\nauthor: a\ndescription: d\nrevoked:\n  reason: sends .env away\n  at: \"2026-10-24\"\n"})
+	orig := publicCheck
+	publicCheck = func(string) error { t.Fatal("a revoked entry must not be looked up"); return nil }
+	t.Cleanup(func() { publicCheck = orig })
+	_, r := checkEntry(path, dir, "/bin/false", "")
+	if len(r.Fail) != 0 || !has(r.Flag, "sends .env away") {
+		t.Errorf("report %+v, want the revocation noted and nothing failed", r)
+	}
+}

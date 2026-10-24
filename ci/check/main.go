@@ -70,6 +70,11 @@ func checkEntry(path, plugins, lerd, only string) (string, report) {
 		r.Fail = append(r.Fail, p...)
 		return name, r
 	}
+	// A revocation pulls the plugin, so there is nothing to install or judge.
+	if !e.Listed() {
+		r.flag("revoked: %s", e.Revoked.Reason)
+		return name, r
+	}
 	if err := publicCheck(e.Repo); err != nil {
 		r.fail("%v (rule 1)", err)
 		return name, r

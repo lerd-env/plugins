@@ -24,7 +24,7 @@ A check runs on every pull request. It fetches your commit, installs it with the
 
 Working with an AI assistant, ask it to use this repository's `submit-plugin` skill: it reviews the plugin with the same `review-plugin` skill maintainers use, then writes the entry and the pull request.
 
-Approval means a maintainer read the code at that commit and found nothing against these terms. It is not a warranty, and the plugin stays your work and your responsibility.
+Approval means a maintainer read the code at that commit and found nothing against these terms. It is not a warranty or a security audit: a plugin is its author's work and responsibility, and Lerd and its maintainers are not responsible for what an installed plugin does.
 
 ## The repository
 
@@ -66,6 +66,6 @@ Approval means a maintainer read the code at that commit and found nothing again
 
 ## Staying listed
 
-21. Security problems reported to you are acknowledged within 7 days and fixed or answered within 30. Report a problem in someone else's plugin privately with **Report a vulnerability** on this repository's Security tab, not in a public issue.
-22. Maintainers may delist a plugin at any time: a vulnerability, a breach of these terms, an abandoned repository, or a commit history rewritten under an approved commit. Delisting stops updates and removes the plugin from Browse. It never uninstalls anything from a user's machine.
+21. Report a security problem in a listed plugin privately with **Report a vulnerability** on this repository's Security tab, not in a public issue. Maintainers handle it whether or not the author answers, so a plugin's users are protected even when its author has moved on.
+22. Maintainers may delist a plugin at any time: a vulnerability, a breach of these terms, an abandoned repository, or a commit history rewritten under an approved commit. A plain delisting stops updates and removes the plugin from Browse, and leaves what is installed alone. A plugin pulled for a security problem is revoked instead: Lerd stops it on every machine that has a commit the revocation covers, tells the user why, and asks whether to remove it or keep using it. A fixed commit can be approved again, and the commits before it stay revoked.
 23. These terms may change. A listed plugin gets a reasonable window to meet a new term before it affects the listing, unless the term closes a risk to users that is already being exploited.
