@@ -24,21 +24,40 @@ type report struct {
 func (r *report) fail(format string, a ...any) { r.Fail = append(r.Fail, fmt.Sprintf(format, a...)) }
 func (r *report) flag(format string, a ...any) { r.Flag = append(r.Flag, fmt.Sprintf(format, a...)) }
 
-// inspect checks a plugin checked out at its approved commit in dir.
+// areas are the parts of a submission the check judges. CI runs each as a step
+// of its own, so the step that fails names what is wrong.
+var areas = []string{"repository", "manifest", "services", "images", "code", "install"}
+
+// inspect checks a plugin checked out at its approved commit in dir, every
+// area but installing it.
 func inspect(dir, name string, e registry.Entry) report {
 	var r report
-	if !anyFile(dir, "LICENSE", "LICENSE.md", "LICENSE.txt", "COPYING") {
-		r.fail("no LICENSE file (rule 2)")
+	for _, a := range areas {
+		inspectArea(&r, dir, name, e, a)
 	}
-	readme, ok := readFirst(dir, "README.md", "README", "readme.md")
-	if !ok {
-		r.fail("no README (rule 3)")
-	}
-	checkManifest(&r, dir, name, len(e.Images) > 0)
-	checkServices(&r, dir, readme)
-	checkImages(&r, dir, e.Images)
-	scanFiles(&r, dir)
 	return r
+}
+
+// inspectArea checks one area of the plugin; install is checkEntry's, not this.
+func inspectArea(r *report, dir, name string, e registry.Entry, area string) {
+	readme, hasReadme := readFirst(dir, "README.md", "README", "readme.md")
+	switch area {
+	case "repository":
+		if !anyFile(dir, "LICENSE", "LICENSE.md", "LICENSE.txt", "COPYING") {
+			r.fail("no LICENSE file (rule 2)")
+		}
+		if !hasReadme {
+			r.fail("no README (rule 3)")
+		}
+	case "manifest":
+		checkManifest(r, dir, name, len(e.Images) > 0)
+	case "services":
+		checkServices(r, dir, readme)
+	case "images":
+		checkImages(r, dir, e.Images)
+	case "code":
+		scanFiles(r, dir)
+	}
 }
 
 // lowerBoundRe accepts only a lower bound, so a new lerd never strands the plugin.
@@ -77,7 +96,7 @@ func checkManifest(r *report, dir, name string, hasImages bool) {
 	// A plugin with something to see is listed with a picture of it; one that
 	// only adds commands or hooks has nothing to capture and shows its icon.
 	if len(m.UI) > 0 && !hasImages {
-		r.fail("the plugin adds a page, site tab or page script, so its entry lists at least one image to show it (rule 20)")
+		r.fail("the plugin adds a page, site tab, Overview card or page script, so its entry lists at least one image to show it (rule 20)")
 	}
 }
 

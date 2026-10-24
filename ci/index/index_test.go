@@ -52,7 +52,7 @@ func fixture(t *testing.T) (registryDir string, commit string) {
 	plugin := t.TempDir()
 	git(t, plugin, "init", "-q")
 	write(t, plugin, map[string]string{
-		"plugin.yaml":   "api_version: 1\nname: qb\nlerd: \">=1.37\"\nrequires: [jq]\nplatforms: [linux]\ncommands:\n  - {name: a, run: bin/a}\nhooks:\n  site.linked: bin/b\n",
+		"plugin.yaml":   "api_version: 1\nname: qb\nversion: 1.2.0\nlerd: \">=1.37\"\nrequires: [jq]\nplatforms: [linux]\ncommands:\n  - {name: a, run: bin/a}\nhooks:\n  site.linked: bin/b\n",
 		"bin/a":         "#!/usr/bin/env python3\n",
 		"bin/b":         "#!/bin/sh\n",
 		"docs/shot.png": "\x89PNG",
@@ -73,7 +73,12 @@ func TestBuild(t *testing.T) {
 	registry.RepoPattern = regexp.MustCompile(`.`)
 	t.Cleanup(func() { registry.RepoPattern = orig })
 	origStars := starsOf
-	starsOf = func(string) (int, error) { return 7, nil }
+	starsOf = func(repo string) (int, error) {
+		if repo == lerdRepo {
+			return 5000, nil
+		}
+		return 7, nil
+	}
 	t.Cleanup(func() { starsOf = origStars })
 
 	reg, commit := fixture(t)
@@ -86,9 +91,12 @@ func TestBuild(t *testing.T) {
 	if err := json.Unmarshal(data, &c); err != nil || len(c.Plugins) != 1 {
 		t.Fatalf("%v %s", err, data)
 	}
+	if c.LerdStars != 5000 {
+		t.Errorf("lerd stars %d, want lerd's own count for the page header", c.LerdStars)
+	}
 	l := c.Plugins[0]
 	today := time.Now().Format("2006-01-02")
-	if l.Name != "qb" || l.Commit != commit || l.Author != "acme" || l.Category != "Debugging" || l.Stars != 7 || l.Lerd != ">=1.37" {
+	if l.Name != "qb" || l.Commit != commit || l.Author != "acme" || l.Category != "Debugging" || l.Stars != 7 || l.Lerd != ">=1.37" || l.Version != "1.2.0" {
 		t.Errorf("listing %+v", l)
 	}
 	if strings.Join(l.Platforms, ",") != "linux" {

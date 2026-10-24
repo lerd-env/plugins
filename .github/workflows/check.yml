@@ -70,16 +70,57 @@ jobs:
             go build -tags nogui -ldflags "-X github.com/geodro/lerd/internal/version.Version=dev" -o "$RUNNER_TEMP/lerd/lerd" ./cmd/lerd
           "$RUNNER_TEMP/lerd/lerd" --version
 
-      - name: Check the changed entries
+      # Each area is a step of its own, so the step that fails names what is wrong
+      # and its log says why; the summary page carries the whole report.
+      - name: "Entry: the file, a public repository, a commit that fetches"
+        id: entry
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          changed=$(git diff --name-only --diff-filter=AM "origin/${{ github.base_ref }}...HEAD" -- 'plugins/*.yaml')
+          changed=$(git diff --name-only --diff-filter=AM "origin/${{ github.base_ref }}...HEAD" -- 'plugins/*.yaml' | tr '\n' ' ')
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
           if [ -z "$changed" ]; then
             echo "No entry added or changed." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
-          go run ./ci/check -lerd "$RUNNER_TEMP/lerd/lerd" -report "$GITHUB_STEP_SUMMARY" $changed
+          go build -o check-bin ./ci/check
+          ./check-bin -lerd "$RUNNER_TEMP/lerd/lerd" -only entry -report "$GITHUB_STEP_SUMMARY" $changed
+
+      - name: "Repository: a license and a README"
+        if: ${{ !cancelled() && steps.entry.outcome == 'success' && steps.entry.outputs.changed }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: ./check-bin -lerd "$RUNNER_TEMP/lerd/lerd" -only repository -report "$GITHUB_STEP_SUMMARY" ${{ steps.entry.outputs.changed }}
+
+      - name: "Manifest: lerd bound, platforms, screenshots"
+        if: ${{ !cancelled() && steps.entry.outcome == 'success' && steps.entry.outputs.changed }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: ./check-bin -lerd "$RUNNER_TEMP/lerd/lerd" -only manifest -report "$GITHUB_STEP_SUMMARY" ${{ steps.entry.outputs.changed }}
+
+      - name: "Services: pinned images the README names"
+        if: ${{ !cancelled() && steps.entry.outcome == 'success' && steps.entry.outputs.changed }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: ./check-bin -lerd "$RUNNER_TEMP/lerd/lerd" -only services -report "$GITHUB_STEP_SUMMARY" ${{ steps.entry.outputs.changed }}
+
+      - name: "Images: format and size"
+        if: ${{ !cancelled() && steps.entry.outcome == 'success' && steps.entry.outputs.changed }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: ./check-bin -lerd "$RUNNER_TEMP/lerd/lerd" -only images -report "$GITHUB_STEP_SUMMARY" ${{ steps.entry.outputs.changed }}
+
+      - name: "Code: no binaries, nothing piped to a shell"
+        if: ${{ !cancelled() && steps.entry.outcome == 'success' && steps.entry.outputs.changed }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: ./check-bin -lerd "$RUNNER_TEMP/lerd/lerd" -only code -report "$GITHUB_STEP_SUMMARY" ${{ steps.entry.outputs.changed }}
+
+      - name: "Installs beside every listed plugin"
+        if: ${{ !cancelled() && steps.entry.outcome == 'success' && steps.entry.outputs.changed }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: ./check-bin -lerd "$RUNNER_TEMP/lerd/lerd" -only install -report "$GITHUB_STEP_SUMMARY" ${{ steps.entry.outputs.changed }}
 
   # A submission changes its own entry and nothing else; changes to the checks
   # come from maintainers in pull requests of their own.

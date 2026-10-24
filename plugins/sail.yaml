@@ -1,0 +1,7 @@
+repo: https://github.com/lerd-env/plugin-sail
+commit: 58f535dce8e5663ad7058ee98fce551f507ae54c
+author: lerd-env
+description: Bring a Laravel Sail project's database and MinIO or RustFS files into Lerd
+category: Migration
+tags: [sail, laravel, migration, docker]
+images: [docs/import.png]

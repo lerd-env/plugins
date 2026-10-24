@@ -40,9 +40,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          go run ./ci/index -out _site
+          go run ./ci/index -out _site -site site/index.html
           cp -r site/. _site/
           echo plugins.lerd.sh > _site/CNAME
+          # Pages lets browsers keep files for ten minutes, so the page names this
+          # deploy's stylesheet and script, never pairing new markup with old ones.
+          v=${GITHUB_SHA::7}
+          # Each plugin's page is the same markup one folder down, so it gets the same names.
+          sed -i "s|href=\"style.css\"|href=\"style.css?v=$v\"|; s|src=\"app.js\"|src=\"app.js?v=$v\"|" _site/index.html $(ls _site/*/index.html 2>/dev/null)
+          grep -q "style.css?v=$v" _site/index.html && grep -q "app.js?v=$v" _site/index.html
 
       - uses: actions/upload-pages-artifact@v3
         with:

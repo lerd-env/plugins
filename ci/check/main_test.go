@@ -62,13 +62,28 @@ func TestCheckEntry_InstallsAlongsideTheListedPlugins(t *testing.T) {
 	registry.RepoPattern = regexpAny
 	t.Cleanup(func() { registry.RepoPattern = origRepo })
 
-	if _, r := checkEntry(entryFor("fresh", "jobbox"), plugins, lerd); len(r.Fail) != 0 || len(r.Flag) != 0 {
+	if _, r := checkEntry(entryFor("fresh", "jobbox"), plugins, lerd, ""); len(r.Fail) != 0 || len(r.Flag) != 0 {
 		t.Errorf("a plugin with names of its own passes, got %+v", r)
 	}
-	_, r := checkEntry(entryFor("copycat", "queuebox"), plugins, lerd)
+	_, r := checkEntry(entryFor("copycat", "queuebox"), plugins, lerd, "")
 	if !has(r.Fail, "queuebox") {
 		t.Errorf("a service another listed plugin ships must block, got %+v", r)
 	}
 }
 
 var regexpAny = regexp.MustCompile(`.`)
+
+// The summary page is where the report reads best, but a failed job's log has
+// to say why too, or it ends on whatever go printed last and looks broken.
+func TestAnnotate_PutsEveryFindingInTheLog(t *testing.T) {
+	var b strings.Builder
+	annotate(&b, "site-services", report{
+		Fail: []string{"bin/x.pyc: binary file (rule 5)"},
+		Flag: []string{"bin/run:3: sudo\nnext line, 100%"},
+	})
+	want := "::error title=site-services::bin/x.pyc: binary file (rule 5)\n" +
+		"::warning title=site-services::bin/run:3: sudo%0Anext line, 100%25\n"
+	if b.String() != want {
+		t.Errorf("annotate wrote\n%q\nwant\n%q", b.String(), want)
+	}
+}

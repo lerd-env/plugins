@@ -4,7 +4,7 @@ A plugin runs as the person who installs it, with their permissions, on the mach
 
 ## How approval works
 
-You open a pull request adding your plugin's entry: its repository and the full 40-character commit you want listed. A maintainer reads the plugin at that commit and approves it or explains what stands in the way. Lerd installs that commit and nothing else, so every update is a new pull request with a new commit, and the maintainer reviews the difference from the last approved one.
+You open a pull request adding your plugin's entry: its repository and the full 40-character commit you want listed. A maintainer reads the plugin at that commit and approves it or explains what stands in the way. Lerd installs that commit and nothing else, so every update is a new pull request with a new commit, and the maintainer reviews the difference from the last approved one. The pull request opens with a [template](.github/pull_request_template.md): fill in every section, since it is the first thing the maintainer reads.
 
 The entry is `plugins/<name>.yaml`, named like the plugin:
 
@@ -20,7 +20,9 @@ images: [docs/board.png]   # paths in your repository at that commit, the first 
 
 Images stay in your repository, and the catalog copies them from the approved commit: the first is the preview on plugins.lerd.sh and in Lerd's Browse tab. Show them in your pull request's description too, linked at that commit (`https://raw.githubusercontent.com/<owner>/<repo>/<commit>/<path>`), so the reviewer sees what will be listed. [lerd-env/plugins#1](https://github.com/lerd-env/plugins/pull/1) is an example submission.
 
-A check runs on every pull request. It fetches your commit, installs it with the newest Lerd that has plugins, a beta or a build of the coming release when that is newer than the last stable one, beside every plugin already listed, and blocks on what it can verify: a public repository, a license, a README, the `lerd` bound, known `platforms`, no compiled binaries, pinned images your README names, a screenshot when the plugin adds a page, site tab or page script, images within their limits, and names nobody else has. It also points the reviewer at lines worth reading, such as minified files, downloads piped to a shell and requests for privilege. A pull request changes only its own entry.
+A check runs on every pull request. It fetches your commit, installs it with the newest Lerd that has plugins, a beta or a build of the coming release when that is newer than the last stable one, beside every plugin already listed, and blocks on what it can verify: a public repository, a license, a README, the `lerd` bound, known `platforms`, no compiled binaries, pinned images your README names, a screenshot when the plugin adds a page, site tab, Overview card or page script, images within their limits, and names nobody else has. It also points the reviewer at lines worth reading, such as minified files, downloads piped to a shell and requests for privilege. A pull request changes only its own entry.
+
+Working with an AI assistant, ask it to use this repository's `submit-plugin` skill: it reviews the plugin with the same `review-plugin` skill maintainers use, then writes the entry and the pull request.
 
 Approval means a maintainer read the code at that commit and found nothing against these terms. It is not a warranty, and the plugin stays your work and your responsibility.
 
@@ -28,7 +30,7 @@ Approval means a maintainer read the code at that commit and found nothing again
 
 1. The repository is public and stays public while the plugin is listed.
 2. It carries an open source license that lets anyone read, run and audit the code.
-3. Its README says what the plugin does, which parts of Lerd it adds to (commands, hooks, MCP tools, pages, page scripts, services, frameworks), what it reads, what it changes, and anything it sends over the network.
+3. Its README says what the plugin does, which parts of Lerd it adds to (commands, hooks, MCP tools, pages, page scripts, notifications, services, frameworks), what it reads, what it changes, and anything it sends over the network.
 4. `plugin.yaml` declares `lerd` with the oldest Lerd release the plugin runs on, as a lower bound only. When it only works on Linux or only on macOS, it says so with `platforms`; Windows runs Lerd in WSL, so `linux` covers it.
 
 ## Code that can be read
@@ -48,7 +50,7 @@ Approval means a maintainer read the code at that commit and found nothing again
 ## Data and the network
 
 13. Nothing about the user, their projects or their machine leaves it without an explicit opt-in the user turns on themselves, and the README names what is sent and to whom.
-14. No analytics, tracking, advertising or crypto mining, in the plugin or in anything it serves.
+14. No analytics, tracking, advertising or crypto mining, in the plugin or in anything it serves. A plugin that sends notifications declares `notifications` in its `plugin.yaml`, which Lerd asks the user to allow, and sends one only for something the user needs to know or act on, never progress or promotion.
 15. A page script runs inside the user's own sites, in their origin. It may only talk to its own plugin endpoints, and never reads or sends the page's content, cookies or storage anywhere else.
 
 ## Services and frameworks

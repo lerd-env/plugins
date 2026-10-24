@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -21,9 +22,14 @@ func main() {
 	lerd := flag.String("lerd", "", "lerd binary that validates and installs each plugin")
 	plugins := flag.String("plugins", "plugins", "folder holding every listed entry")
 	out := flag.String("report", "", "file the markdown report is appended to (stdout when empty)")
+	only := flag.String("only", "", "check one area: entry, "+strings.Join(areas, ", "))
 	flag.Parse()
 	if *lerd == "" || flag.NArg() == 0 {
-		fmt.Fprintln(os.Stderr, "usage: check -lerd <binary> plugins/<name>.yaml...")
+		fmt.Fprintln(os.Stderr, "usage: check -lerd <binary> [-only <area>] plugins/<name>.yaml...")
+		os.Exit(2)
+	}
+	if *only != "" && *only != "entry" && !slices.Contains(areas, *only) {
+		fmt.Fprintf(os.Stderr, "unknown area %q, want entry, %s\n", *only, strings.Join(areas, ", "))
 		os.Exit(2)
 	}
 
@@ -40,8 +46,9 @@ func main() {
 
 	failed := false
 	for _, path := range flag.Args() {
-		name, r := checkEntry(path, *plugins, *lerd)
-		writeReport(w, name, r)
+		name, r := checkEntry(path, *plugins, *lerd, *only)
+		writeReport(w, name, *only, r)
+		annotate(os.Stdout, name, r)
 		failed = failed || len(r.Fail) > 0
 	}
 	if failed {
@@ -49,7 +56,10 @@ func main() {
 	}
 }
 
-func checkEntry(path, plugins, lerd string) (string, report) {
+// checkEntry checks one entry; only names a single area, or "" for all of them.
+// The entry itself, the repository being public and the commit fetching are
+// checked whatever the area, since nothing else can be judged without them.
+func checkEntry(path, plugins, lerd, only string) (string, report) {
 	var r report
 	name, e, err := registry.ReadEntry(path)
 	if err != nil {
@@ -71,10 +81,18 @@ func checkEntry(path, plugins, lerd string) (string, report) {
 	}
 	defer os.RemoveAll(dir)
 
-	found := inspect(dir, name, e)
-	r.Fail = append(r.Fail, found.Fail...)
-	r.Flag = append(r.Flag, found.Flag...)
-	installAlongside(&r, lerd, plugins, name, dir)
+	switch only {
+	case "":
+		found := inspect(dir, name, e)
+		r.Fail = append(r.Fail, found.Fail...)
+		r.Flag = append(r.Flag, found.Flag...)
+		installAlongside(&r, lerd, plugins, name, dir)
+	case "install":
+		installAlongside(&r, lerd, plugins, name, dir)
+	case "entry":
+	default:
+		inspectArea(&r, dir, name, e, only)
+	}
 	return name, r
 }
 
@@ -180,7 +198,22 @@ func lerdInstall(lerd string, env []string, dir string) (string, error) {
 	return strings.TrimSpace(string(out)), err
 }
 
-func writeReport(w io.Writer, name string, r report) {
+// annotate writes each finding as a GitHub workflow command, so it shows in the
+// job's log and on the pull request rather than only on the summary page.
+func annotate(w io.Writer, name string, r report) {
+	esc := strings.NewReplacer("%", "%25", "\r", "%0D", "\n", "%0A")
+	for _, f := range r.Fail {
+		fmt.Fprintf(w, "::error title=%s::%s\n", name, esc.Replace(f))
+	}
+	for _, f := range r.Flag {
+		fmt.Fprintf(w, "::warning title=%s::%s\n", name, esc.Replace(f))
+	}
+}
+
+func writeReport(w io.Writer, name, only string, r report) {
+	if only != "" {
+		name += ": " + only
+	}
 	fmt.Fprintf(w, "## %s\n\n", name)
 	if len(r.Fail) > 0 {
 		fmt.Fprintln(w, "**Blocking**")
@@ -198,7 +231,7 @@ func writeReport(w io.Writer, name string, r report) {
 		}
 		fmt.Fprintln(w)
 	}
-	if len(r.Fail) == 0 {
+	if len(r.Fail) == 0 && (only == "" || only == "install") {
 		fmt.Fprintln(w, "The automated checks pass. A maintainer still reads the code for rules 9 to 15 and 19 to 23 before approving.")
 		fmt.Fprintln(w)
 	}

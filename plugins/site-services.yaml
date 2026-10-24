@@ -1,0 +1,7 @@
+repo: https://github.com/ExeQue/lerd-plugin-site-services
+commit: dcb5218ce811b0d59c1c5275aaa4934d6890bbf4
+author: ExeQue
+description: A site tab and MCP tool listing the services a site uses, with each one's description, default login and address
+category: Services
+tags: [services, site-tab, mcp, credentials]
+images: [docs/tab.png]

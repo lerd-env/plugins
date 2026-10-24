@@ -12,6 +12,7 @@ import (
 
 // manifest is the part of plugin.yaml the catalog shows before an install.
 type manifest struct {
+	Version   string                 `yaml:"version"`
 	Lerd      string                 `yaml:"lerd"`
 	Requires  []string               `yaml:"requires"`
 	Platforms []string               `yaml:"platforms"`

@@ -1,11 +1,21 @@
-/* The editorial look of lerd.sh: square corners, ruled panels, red as an accent. */
+/* The editorial look of lerd.sh: square corners, ruled panels, red as an accent.
+   Light by default like lerd.sh, dark under html.dark, which the head script sets
+   from the switch or, until someone uses it, from the system. */
 :root {
-  --bg: #0a0a0b; --panel: #131316; --raised: #1d1d22; --line: #26262c; --line-2: #34343c;
-  --ink: #f4f4f5; --ink-2: #c4c4cc; --muted: #8b8b95; --faint: #5d5d66;
-  --accent: #ff2d20; --accent-2: #ff5b50; --amber: #fbbf24;
+  --bg: #ffffff; --panel: #f7f7f8; --raised: #eeeef0; --line: #e6e6e9; --line-2: #d4d4d8;
+  --ink: #0a0a0b; --ink-2: #3f3f46; --ink-hi: #27272a; --muted: #52525b; --faint: #71717a;
+  --accent: #e0241a; --accent-2: #c41e15; --amber: #b45309;
+  --shot-bg: linear-gradient(160deg, #f4f4f5, #e9e9ec); --shadow: rgba(10, 10, 11, .18);
   --sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, monospace;
   --maxw: 1180px;
+  color-scheme: light;
+}
+:root.dark {
+  --bg: #0a0a0b; --panel: #131316; --raised: #1d1d22; --line: #26262c; --line-2: #34343c;
+  --ink: #f4f4f5; --ink-2: #c4c4cc; --ink-hi: #ffffff; --muted: #8b8b95; --faint: #5d5d66;
+  --accent: #ff2d20; --accent-2: #ff5b50; --amber: #fbbf24;
+  --shot-bg: linear-gradient(160deg, #17171b, #0d0d10); --shadow: rgba(0, 0, 0, .8);
   color-scheme: dark;
 }
 
@@ -21,10 +31,10 @@ code { font-family: var(--mono); font-size: .9em; }
 .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; font: 600 14px var(--sans); border: 1px solid var(--line-2); background: var(--panel); color: var(--ink); cursor: pointer; white-space: nowrap; }
 .btn:hover { border-color: var(--faint); }
 .btn.ink { background: var(--ink); border-color: var(--ink); color: var(--bg); }
-.btn.ink:hover { background: #fff; border-color: #fff; }
+.btn.ink:hover { background: var(--ink-hi); border-color: var(--ink-hi); }
 
 /* header */
-.hdr { position: sticky; top: 0; z-index: 10; background: rgba(10, 10, 11, .82); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+.hdr { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
 .hdr .wrap { display: flex; align-items: center; gap: 32px; height: 64px; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
 .brand span { color: var(--faint); font-weight: 600; }
@@ -32,6 +42,13 @@ code { font-family: var(--mono); font-size: .9em; }
 .hdr nav a:hover, .hdr-right a:not(.btn):hover { color: var(--ink); }
 .hdr-right { margin-left: auto; display: flex; align-items: center; gap: 18px; font-size: 14px; color: var(--ink-2); }
 .hdr .btn { height: 34px; padding: 0 14px; font-size: 13px; }
+.gh { display: inline-flex; align-items: center; gap: 8px; }
+.gh .stars { font: 500 12px var(--mono); color: var(--muted); border: 1px solid var(--line-2); padding: 3px 7px; }
+.gh:hover .stars { color: var(--amber); border-color: color-mix(in srgb, var(--amber) 30%, transparent); }
+.theme { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid var(--line-2); background: none; color: var(--ink-2); cursor: pointer; }
+.theme:hover { color: var(--ink); border-color: var(--faint); }
+.theme svg { width: 16px; height: 16px; }
+:root:not(.dark) .on-dark, :root.dark .on-light { display: none !important; }
 
 /* hero */
 .hero { padding: 88px 0 64px; border-bottom: 1px solid var(--line); }
@@ -53,18 +70,19 @@ code { font-family: var(--mono); font-size: .9em; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
 .chip { font: 500 11px/1 var(--mono); padding: 7px 10px; border: 1px solid var(--line-2); background: none; color: var(--ink-2); cursor: pointer; }
 .chip:hover { color: var(--ink); border-color: var(--faint); }
-.chip[aria-pressed="true"] { color: var(--accent-2); border-color: rgba(255, 45, 32, .45); }
+.chip[aria-pressed="true"] { color: var(--accent-2); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
 .count { margin: 32px 0 16px; }
 
 /* grid of listings, ruled like the framework grid on lerd.sh */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
-.card { display: flex; flex-direction: column; text-align: left; padding: 0; border: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: none; color: inherit; font: inherit; cursor: pointer; transition: background .15s; }
+.card { text-decoration: none; display: flex; flex-direction: column; text-align: left; padding: 0; border: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: none; color: inherit; font: inherit; cursor: pointer; transition: background .15s; }
 .card:hover, .card:focus-visible { background: var(--panel); outline: none; }
-.shot { position: relative; aspect-ratio: 16 / 10; overflow: hidden; border-bottom: 1px solid var(--line); background: linear-gradient(160deg, #17171b, #0d0d10); }
-.shot img { position: absolute; top: 24px; left: 24px; width: calc(100% - 24px); height: calc(100% - 24px); object-fit: cover; object-position: left top; border: 1px solid var(--line-2); border-right: 0; border-bottom: 0; box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .8); }
+.shot { position: relative; aspect-ratio: 16 / 10; overflow: hidden; border-bottom: 1px solid var(--line); background: var(--shot-bg); }
+.shot img { position: absolute; top: 24px; left: 24px; width: calc(100% - 24px); height: calc(100% - 24px); object-fit: cover; object-position: left top; border: 1px solid var(--line-2); border-right: 0; border-bottom: 0; box-shadow: 0 30px 60px -20px var(--shadow); }
 .shot.none { display: grid; place-items: center; color: var(--faint); }
 .shot.none svg { width: 40px; height: 40px; }
 .card-body { padding: 24px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.ver { font: 500 12px var(--mono); color: var(--faint); letter-spacing: 0; margin-left: 6px; vertical-align: middle; }
 .card-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font: 500 12px var(--mono); color: var(--faint); }
 .card:hover .num { color: var(--accent); }
 .card h3 { font-size: 22px; letter-spacing: -.02em; line-height: 1.15; font-weight: 700; }
@@ -79,18 +97,32 @@ code { font-family: var(--mono); font-size: .9em; }
 .empty a { color: var(--ink); font-weight: 600; }
 .empty a:hover { color: var(--accent-2); }
 
+/* How a plugin gets here, under the catalog, in the same ruled grid. */
+.make { padding: 72px 0 96px; border-top: 1px solid var(--line); }
+.make h2 { font-size: clamp(32px, 5vw, 56px); line-height: 1; letter-spacing: -.035em; font-weight: 700; margin: 20px 0 18px; }
+.make h2 span { display: block; color: var(--faint); }
+.make .lead { font-size: 18px; }
+.steps { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 40px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); counter-reset: none; }
+.steps li { padding: 28px 24px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
+.steps .n { font: 500 12px var(--mono); color: var(--accent); }
+.steps h3 { font-size: 22px; letter-spacing: -.02em; font-weight: 700; }
+.steps p { color: var(--ink-2); font-size: 15px; }
+.steps .cmd { min-width: 0; margin-top: auto; }
+.make-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+
 .none-listed .meta, .none-listed .filters, .none-listed .chips, .none-listed .count { display: none; }
 
 /* detail */
-dialog { width: min(960px, calc(100vw - 32px)); max-height: calc(100vh - 32px); margin: auto; border: 1px solid var(--line-2); background: var(--panel); color: var(--ink); }
-dialog:focus { outline: none; }
-dialog::backdrop { background: rgba(0, 0, 0, .7); }
-.close { position: absolute; top: 14px; right: 16px; border: 0; background: none; color: var(--muted); font-size: 28px; line-height: 1; cursor: pointer; }
-.close:hover { color: var(--ink); }
-.close:focus:not(:focus-visible) { outline: none; }
-#d-body { padding: 40px; display: flex; flex-direction: column; gap: 18px; }
-#d-body h2 { font-size: 40px; letter-spacing: -.03em; line-height: 1.05; font-weight: 700; }
-#d-body > p { color: var(--ink-2); max-width: 62ch; }
+/* A plugin's own page takes the list's place. */
+.plugin, body.on-plugin .hero, body.on-plugin .list { display: none; }
+body.on-plugin .plugin { display: block; padding: 56px 0 80px; }
+.back { font: 500 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-decoration: none; }
+.back:hover { color: var(--ink); }
+.by a { color: var(--ink-2); text-decoration: none; }
+.by a:hover { color: var(--accent-2); }
+#plugin-body { display: flex; flex-direction: column; gap: 18px; }
+#plugin-body h2 { font-size: 40px; letter-spacing: -.03em; line-height: 1.05; font-weight: 700; }
+#plugin-body > p { color: var(--ink-2); max-width: 62ch; }
 .facts { display: flex; flex-wrap: wrap; gap: 8px 24px; font: 12px var(--mono); color: var(--muted); }
 .facts a { color: var(--ink-2); }
 .facts a:hover { color: var(--accent-2); }
@@ -124,7 +156,16 @@ footer { border-top: 1px solid var(--line); padding: 64px 0 48px; }
   .lead { font-size: 18px; }
   .hdr-right a:not(.btn) { display: none; }
   .grid { grid-template-columns: 1fr; }
-  #d-body { padding: 28px 20px; }
-  #d-body h2 { font-size: 30px; }
+  body.on-plugin .plugin { padding: 32px 0 56px; }
+  #plugin-body h2 { font-size: 30px; }
   .shots img { height: 200px; }
+  .steps { grid-template-columns: 1fr; }
 }
+
+/* Pages of the list, square like the category chips. */
+.pager { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+.pager:empty { display: none; }
+.pager button { font: 500 12px/1 var(--mono); min-width: 36px; padding: 9px 10px; border: 1px solid var(--line-2); background: none; color: var(--ink-2); cursor: pointer; }
+.pager button:hover:not(:disabled) { color: var(--ink); border-color: var(--faint); }
+.pager button[aria-current="page"] { color: var(--accent-2); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.pager button:disabled { opacity: .4; cursor: default; }
