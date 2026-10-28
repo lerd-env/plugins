@@ -74,7 +74,7 @@ function render() {
   const pages = Math.max(1, Math.ceil(shown.length / PAGE_SIZE));
   page = Math.min(page, pages - 1);
   const first = page * PAGE_SIZE;
-  count.innerHTML = `<b>${pad(shown.length)}</b> / ${plugins.length} plugins`;
+  count.innerHTML = `<b>${pad(shown.length)}</b> / ${plugins.length} community plugins`;
   grid.innerHTML = shown.length
     ? shown
         .slice(first, first + PAGE_SIZE)
