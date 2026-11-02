@@ -1,0 +1,7 @@
+repo: https://github.com/prabowosd/lerd-agents
+commit: e068573573bcd36efb00b0e13651ae2c252fc2bb
+author: prabowosd
+description: See and open the herdr and Orca coding agents working in each site and its worktrees
+category: AI
+tags: [agents, herdr, orca, worktrees, ai]
+images: [docs/tab.png]
