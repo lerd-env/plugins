@@ -1,5 +1,5 @@
 repo: https://github.com/mtolhuys/lerd-rust
-commit: 88cd78bcfb356a7fd2e4853f7560bbf8735295f7
+commit: a797f7e1137974de6cea5709e1d23cf846054d59
 author: mtolhuys
 description: Rebuild-on-save dev server, a build tab, cargo commands and AI tools for Rust sites
 category: Languages
