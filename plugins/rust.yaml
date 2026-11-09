@@ -1,0 +1,7 @@
+repo: https://github.com/mtolhuys/lerd-rust
+commit: a797f7e1137974de6cea5709e1d23cf846054d59
+author: mtolhuys
+description: Rebuild-on-save dev server, a build tab, cargo commands and AI tools for Rust sites
+category: Languages
+tags: [rust, cargo, host-proxy, mcp]
+images: [docs/tab.png]
