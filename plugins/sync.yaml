@@ -1,0 +1,7 @@
+repo: https://github.com/lerd-env/plugin-sync
+commit: 4f95cc8fe6bec79f20f7d893eb9f0f8fe1cc2edc
+author: lerd-env
+description: Pull and push a site's database and files between Lerd and its servers over SSH, with a backup of everything replaced
+category: Deployment
+tags: [sync, ssh, rsync, deployment, backups, wordpress]
+images: [docs/tab.png]
