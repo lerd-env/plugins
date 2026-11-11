@@ -1,0 +1,7 @@
+repo: https://github.com/lerd-env/plugin-example
+commit: 4161a8938ce88d4126e5f172d022aae29ad2c49b
+author: lerd-env
+description: Every surface a Lerd plugin can add, in one small working example
+category: Examples
+tags: [example, starter]
+images: [docs/page.png, docs/tab.png]
