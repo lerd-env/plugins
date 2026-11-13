@@ -1,5 +1,5 @@
 repo: https://github.com/lerd-env/plugin-sync
-commit: cb80d92b962d6dabb4df0f2b65f8b95bb47d15bf
+commit: 391eb013094e2ce58737ab6a27158efdb0209a72
 author: lerd-env
 description: Pull and push a site's database and files between Lerd and its servers over SSH, with a backup of everything replaced
 category: Deployment
