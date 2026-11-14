@@ -1,5 +1,5 @@
 repo: https://github.com/lerd-env/plugin-db-browser
-commit: 693908f0c0609db5cd630cf8b89b7f621a591409
+commit: d29aa9dd607abb25a40da9996b68045b1ce4a700
 author: lerd-env
 description: Browse, query and edit a site's database on its own tab, MySQL, MariaDB, PostgreSQL or SQLite
 category: Databases
