@@ -79,3 +79,21 @@ func pluginPage(tmpl []byte, l listing) ([]byte, error) {
 	s = strings.Replace(s, "<title>Lerd Plugins</title>", fmt.Sprintf("<title>%s · Lerd Plugins</title>\n  %s", e(l.Name), tags), 1)
 	return []byte(s), nil
 }
+
+// writeSitemap lists the home page and every plugin's page for search engines,
+// which robots.txt points at.
+func writeSitemap(c catalog, out string) error {
+	var b strings.Builder
+	b.WriteString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+	b.WriteString("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n")
+	b.WriteString("<url><loc>" + siteURL + "/</loc></url>\n")
+	for _, l := range c.Plugins {
+		b.WriteString("<url><loc>" + html.EscapeString(siteURL+"/"+l.Name+"/") + "</loc>")
+		if l.UpdatedAt != "" {
+			b.WriteString("<lastmod>" + html.EscapeString(l.UpdatedAt) + "</lastmod>")
+		}
+		b.WriteString("</url>\n")
+	}
+	b.WriteString("</urlset>\n")
+	return os.WriteFile(filepath.Join(out, "sitemap.xml"), []byte(b.String()), 0o644)
+}

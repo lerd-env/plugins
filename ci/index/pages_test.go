@@ -73,3 +73,29 @@ func TestWritePluginPages(t *testing.T) {
 		t.Errorf("err = %v, want one naming images", err)
 	}
 }
+
+// Search engines find each plugin's page through the sitemap, dated by when
+// its entry last changed.
+func TestWriteSitemap_ListsHomeAndEveryPluginPage(t *testing.T) {
+	out := t.TempDir()
+	c := catalog{Plugins: []listing{{Name: "sail", UpdatedAt: "2026-11-02"}, {Name: "notes"}}}
+	if err := writeSitemap(c, out); err != nil {
+		t.Fatal(err)
+	}
+	b, err := os.ReadFile(filepath.Join(out, "sitemap.xml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(b)
+	for _, want := range []string{
+		`<?xml version="1.0" encoding="UTF-8"?>`,
+		`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
+		`<url><loc>https://plugins.lerd.sh/</loc></url>`,
+		`<url><loc>https://plugins.lerd.sh/sail/</loc><lastmod>2026-11-02</lastmod></url>`,
+		`<url><loc>https://plugins.lerd.sh/notes/</loc></url>`,
+	} {
+		if !strings.Contains(s, want) {
+			t.Errorf("sitemap lacks %s\n%s", want, s)
+		}
+	}
+}
