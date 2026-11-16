@@ -83,7 +83,10 @@ func pagesFromIndex(site, out string) error {
 	if err := json.Unmarshal(data, &c); err != nil {
 		return err
 	}
-	return writePluginPages(tmpl, c, out)
+	if err := writePluginPages(tmpl, c, out); err != nil {
+		return err
+	}
+	return writeSitemap(c, out)
 }
 
 // build writes the catalog for every entry in plugins, reading their dates
