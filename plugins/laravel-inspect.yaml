@@ -1,5 +1,5 @@
 repo: https://github.com/ExeQue/lerd-laravel-inspect
-commit: 3db7dd39aa21f2654fb494405f52cf112a9ec5d2
+commit: 953e461fc2c2a06eb31aeeb6de1c5b22a94354f0
 author: ExeQue
 description: See inside a Laravel app on its own tab and for AI agents, from routes, models and policies to config, bindings, queues, storage and cache
 category: Debugging
