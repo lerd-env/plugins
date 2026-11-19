@@ -1,0 +1,7 @@
+repo: https://github.com/ExeQue/lerd-laravel-inspect
+commit: f76dcd2bf9a6b5ccedf698df92561cdae9d08080
+author: ExeQue
+description: See inside a Laravel app on its own tab and for AI agents, from routes, models and policies to config, bindings, queues, storage and cache
+category: Debugging
+tags: [laravel, inspect, routes, models, config, mcp]
+images: [screenshots/overview.png, screenshots/routes.png, screenshots/model.png, screenshots/config.png, screenshots/storage.png, screenshots/cache.png]
