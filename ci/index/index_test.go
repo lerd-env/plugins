@@ -56,6 +56,8 @@ func fixture(t *testing.T) (registryDir string, commit string) {
 		"bin/a":         "#!/usr/bin/env python3\n",
 		"bin/b":         "#!/bin/sh\n",
 		"docs/shot.png": "\x89PNG",
+		"README.md":     "# qb\n\nQueues for [Lerd](https://lerd.sh).\n",
+		"LICENSE":       "MIT License\n\nCopyright (c) 2026 acme\n",
 	})
 	commit = commitAll(t, plugin)
 
@@ -83,11 +85,16 @@ func TestBuild(t *testing.T) {
 
 	reg, commit := fixture(t)
 	out := t.TempDir()
-	if err := build(filepath.Join(reg, "plugins"), reg, out); err != nil {
+	built, err := build(filepath.Join(reg, "plugins"), reg, out)
+	if err != nil {
 		t.Fatal(err)
 	}
 	var c catalog
 	data, _ := os.ReadFile(filepath.Join(out, "index.json"))
+	// The readme goes on the plugin's page, never into the index every Lerd downloads.
+	if !strings.Contains(built.Plugins[0].Readme, "Queues for") || strings.Contains(string(data), "Queues for") {
+		t.Errorf("readme %q, index %s", built.Plugins[0].Readme, data)
+	}
 	if err := json.Unmarshal(data, &c); err != nil || len(c.Plugins) != 1 {
 		t.Fatalf("%v %s", err, data)
 	}
@@ -98,6 +105,9 @@ func TestBuild(t *testing.T) {
 	today := time.Now().Format("2006-01-02")
 	if l.Name != "qb" || l.Commit != commit || l.Author != "acme" || l.Category != "Debugging" || l.Stars != 7 || l.Lerd != ">=1.37" || l.Version != "1.2.0" {
 		t.Errorf("listing %+v", l)
+	}
+	if l.License != "MIT" || l.LicenseFile != "LICENSE" {
+		t.Errorf("license %q in %q", l.License, l.LicenseFile)
 	}
 	if strings.Join(l.Platforms, ",") != "linux" {
 		t.Errorf("platforms %v", l.Platforms)
@@ -127,7 +137,7 @@ func TestBuild_RefusesAnEntryItCannotFetch(t *testing.T) {
 	git(t, reg, "init", "-q")
 	write(t, reg, map[string]string{"plugins/ghost.yaml": "repo: file:///nonexistent\ncommit: 0123456789abcdef0123456789abcdef01234567\nauthor: a\ndescription: d\n"})
 	commitAll(t, reg)
-	if err := build(filepath.Join(reg, "plugins"), reg, t.TempDir()); err == nil || !strings.Contains(err.Error(), "ghost") {
+	if _, err := build(filepath.Join(reg, "plugins"), reg, t.TempDir()); err == nil || !strings.Contains(err.Error(), "ghost") {
 		t.Fatalf("err = %v", err)
 	}
 }
@@ -145,7 +155,7 @@ func TestBuild_PublishesARevocation(t *testing.T) {
 	reg := t.TempDir()
 	write(t, reg, map[string]string{"plugins/bad.yaml": "repo: https://example.test/gone\ncommit: 0123456789abcdef0123456789abcdef01234567\nauthor: a\ndescription: d\nrevoked:\n  reason: sends .env away\n  at: \"2026-10-24\"\n"})
 	out := t.TempDir()
-	if err := build(filepath.Join(reg, "plugins"), reg, out); err != nil {
+	if _, err := build(filepath.Join(reg, "plugins"), reg, out); err != nil {
 		t.Fatal(err)
 	}
 	var c catalog

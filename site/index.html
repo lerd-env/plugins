@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lerd Plugins</title>
+  <title>Lerd Plugins: reviewed extensions for the Lerd PHP development environment</title>
   <meta name="description" content="Plugins for Lerd, the local PHP development environment, each reviewed at the commit Lerd installs.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Lerd Plugins">
@@ -33,11 +33,11 @@
 </head>
 <body>
   <header class="hdr"><div class="wrap">
-    <a class="brand" href="./"><img class="on-light" src="logo.svg" alt="" width="26" height="26"><img class="on-dark" src="logo-dark.svg" alt="" width="26" height="26">Lerd <span>Plugins</span></a>
+    <a class="brand" href="https://lerd.sh/"><img class="on-light" src="logo.svg" alt="" width="26" height="26"><img class="on-dark" src="logo-dark.svg" alt="" width="26" height="26">Lerd <span>Plugins</span></a>
     <nav>
+      <a class="browse" href="./">Browse</a>
       <a href="https://lerd.sh/features/plugins/">Write a plugin</a>
       <a href="https://github.com/lerd-env/plugins/blob/main/SUBMITTING.md">Submit one</a>
-      <a href="https://lerd.sh/">lerd.sh</a>
     </nav>
     <div class="hdr-right">
       <a class="gh" href="https://github.com/lerd-env/lerd">GitHub<span id="lerd-stars" class="stars" hidden></span></a>
@@ -55,14 +55,17 @@
       <h1>Plugins<span>for Lerd</span></h1>
       <p class="lead">Commands, dashboard pages, AI tools and services that extend Lerd. A maintainer reads each plugin at one exact commit, and that commit is the one Lerd installs. Plugins run as you, so read what you install.</p>
       <div class="meta">
-        <div><strong id="n-plugins">0</strong>community plugins</div>
+        <div><strong id="n-plugins">0</strong>plugins</div>
         <div><strong id="n-authors">0</strong>authors</div>
-        <div><strong>1</strong>reviewed commit each</div>
       </div>
-    </div></section>
+    </div>
+      <div class="hero-art" aria-hidden="true"><div class="win"><div class="win-bar"><i></i><i></i><i></i></div><img class="on-light" src="images/dashboard-light-1280.webp" srcset="images/dashboard-light-640.webp 640w, images/dashboard-light-1280.webp 1280w" sizes="min(1000px, 62vw)" width="1280" height="800" alt=""><img class="on-dark" src="images/dashboard-1280.webp" srcset="images/dashboard-640.webp 640w, images/dashboard-1280.webp 1280w" sizes="min(1000px, 62vw)" width="1280" height="800" alt=""></div></div>
+    </section>
 
     <!-- A plugin's own page, at /<name>/, shows here in place of the list. -->
     <section class="plugin"><div class="wrap" id="plugin-body"></div></section>
+    <!-- The plugin's README at the reviewed commit, written in by ci/index. -->
+    <section class="docs"><div class="wrap" id="plugin-docs"></div></section>
 
     <section class="list"><div class="wrap">
       <div class="filters">

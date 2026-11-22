@@ -38,6 +38,13 @@ type listing struct {
 	Lerd      string   `json:"lerd,omitempty"`
 	Requires  []string `json:"requires,omitempty"`
 	Platforms []string `json:"platforms,omitempty"`
+	// Readme is the plugin's README at the approved commit, rendered for its
+	// page; never in the index, which every Lerd downloads.
+	// License names the license the approved commit ships, "" when its file is
+	// one the catalog doesn't recognise; LicenseFile is that file's path.
+	License     string `json:"license,omitempty"`
+	LicenseFile string `json:"license_file,omitempty"`
+	Readme      string `json:"-"`
 }
 
 type catalog struct {
@@ -57,33 +64,33 @@ func main() {
 	out := flag.String("out", "_site", "folder index.json and the images are written to")
 	site := flag.String("site", "", "the site's index.html, made into a page for each plugin")
 	flag.Parse()
-	if err := build(*plugins, ".", *out); err != nil {
+	c, err := build(*plugins, ".", *out)
+	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 	if *site != "" {
-		if err := pagesFromIndex(*site, *out); err != nil {
+		if err := writePages(*site, *out, c); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
 	}
 }
 
-// pagesFromIndex writes a page per plugin the built index.json lists.
-func pagesFromIndex(site, out string) error {
+// writePages writes the home page with every plugin the build listed, a page
+// per plugin with its readme, and one per category, tag and author.
+func writePages(site, out string, c catalog) error {
 	tmpl, err := os.ReadFile(site)
 	if err != nil {
 		return err
 	}
-	data, err := os.ReadFile(filepath.Join(out, "index.json"))
-	if err != nil {
-		return err
-	}
-	var c catalog
-	if err := json.Unmarshal(data, &c); err != nil {
+	if err := writeHomePages(tmpl, c, out); err != nil {
 		return err
 	}
 	if err := writePluginPages(tmpl, c, out); err != nil {
+		return err
+	}
+	if err := writeFilterPages(tmpl, c, out); err != nil {
 		return err
 	}
 	return writeSitemap(c, out)
@@ -96,17 +103,17 @@ type revoked struct {
 	registry.Revocation
 }
 
-func build(plugins, repoDir, out string) error {
+func build(plugins, repoDir, out string) (catalog, error) {
 	paths, err := filepath.Glob(filepath.Join(plugins, "*.yaml"))
 	if err != nil {
-		return err
+		return catalog{}, err
 	}
 	sort.Strings(paths)
 	c := catalog{Plugins: []listing{}}
 	for _, path := range paths {
 		name, e, err := registry.ReadEntry(path)
 		if err != nil {
-			return err
+			return catalog{}, err
 		}
 		if e.Revoked != nil {
 			c.Revoked = append(c.Revoked, revoked{Name: name, Revocation: *e.Revoked})
@@ -116,7 +123,7 @@ func build(plugins, repoDir, out string) error {
 		}
 		l, err := buildListing(path, repoDir, out)
 		if err != nil {
-			return fmt.Errorf("%s: %w", filepath.Base(path), err)
+			return catalog{}, fmt.Errorf("%s: %w", filepath.Base(path), err)
 		}
 		c.Plugins = append(c.Plugins, l)
 	}
@@ -125,13 +132,13 @@ func build(plugins, repoDir, out string) error {
 		c.LerdStars = stars
 	}
 	if err := os.MkdirAll(out, 0o755); err != nil {
-		return err
+		return catalog{}, err
 	}
 	data, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
-		return err
+		return catalog{}, err
 	}
-	return os.WriteFile(filepath.Join(out, "index.json"), append(data, '\n'), 0o644)
+	return c, os.WriteFile(filepath.Join(out, "index.json"), append(data, '\n'), 0o644)
 }
 
 func buildListing(path, repoDir, out string) (listing, error) {
@@ -156,7 +163,13 @@ func buildListing(path, repoDir, out string) (listing, error) {
 	if err != nil {
 		return listing{}, err
 	}
+	readme, err := readmeHTML(dir, out, name, e)
+	if err != nil {
+		return listing{}, fmt.Errorf("readme: %w", err)
+	}
+	licenseAt, license := licenseFile(dir)
 	l := listing{
+		Readme: readme, License: license, LicenseFile: licenseAt,
 		Name: name, Description: e.Description, Repo: e.Repo, Commit: e.Commit,
 		Author: e.Author, Category: e.Category, Tags: e.Tags, Images: images,
 		Version: m.Version, Lerd: m.Lerd, Requires: m.requirements(dir), Platforms: m.Platforms,
