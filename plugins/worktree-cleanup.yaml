@@ -1,5 +1,5 @@
 repo: https://github.com/bikramtuladhar/lerd-plugin-worktree-cleanup
-commit: 5959a1d66e93dc91a873f18f3a3c18e3d9604059
+commit: 4398a8eced65de871e6963cf732f9c5d9cb25aa9
 author: bikramtuladhar
 description: Remove finished worktrees, with their database and dev server, by hand or on a schedule, following rules you choose
 category: Maintenance
