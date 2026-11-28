@@ -1,5 +1,5 @@
 repo: https://github.com/lerd-env/plugin-terminal
-commit: 43a9c1ca2b4482074e47b924b97bf5d3de074f86
+commit: 11e4ce3ed0ace8e0424c4e2770d7117d6e593abe
 author: lerd-env
 description: A terminal on every site's tab, in its PHP container or on the host
 category: Debugging
