@@ -1,0 +1,7 @@
+repo: https://github.com/lerd-env/plugin-terminal
+commit: 11e4ce3ed0ace8e0424c4e2770d7117d6e593abe
+author: lerd-env
+description: A terminal on every site's tab, in its PHP container or on the host
+category: Debugging
+tags: [terminal, shell, console, container, xterm]
+images: [docs/terminal.png, docs/maximized.png]
